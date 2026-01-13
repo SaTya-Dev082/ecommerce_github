@@ -93,9 +93,34 @@ class UserController extends Controller
         }
     }
 
-    // Logout user
+    // Logout user currently authenticated
+    public function logoutCurrent(Request $request){
+        $user=$request->user()->currentAccessToken()->delete();
+        return response()->json([
+            "status" => true,
+            "message" => "User Logged Out (Currently) Successfully"
+        ], 200);
+    }
+    
+    // Logout user currently authenticated
+    public function logoutAll(Request $request){
+        $user=$request->user()->tokens()->delete();
+        return response()->json([
+            "status" => true,
+            "message" => "User Logged Out (All) Successfully"
+        ], 200);
+    }
 
     // Get user profile
+    public function profile()
+    {
+        $user = auth()->user();
+        return response()->json([
+            "status" => true,
+            "message" => "User Profile Retrieved Successfully",
+            "user" => $user
+        ], 200);
+    }
 
     // Update user profile
 
