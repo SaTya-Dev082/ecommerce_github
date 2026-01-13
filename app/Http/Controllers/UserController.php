@@ -7,6 +7,7 @@ use App\Models\User;
 use ErlandMuchasaj\LaravelFileUploader\FileUploader;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -94,17 +95,19 @@ class UserController extends Controller
     }
 
     // Logout user currently authenticated
-    public function logoutCurrent(Request $request){
-        $user=$request->user()->currentAccessToken()->delete();
+    public function logoutCurrent(Request $request)
+    {
+        $user = $request->user()->currentAccessToken()->delete();
         return response()->json([
             "status" => true,
             "message" => "User Logged Out (Currently) Successfully"
         ], 200);
     }
-    
+
     // Logout user currently authenticated
-    public function logoutAll(Request $request){
-        $user=$request->user()->tokens()->delete();
+    public function logoutAll(Request $request)
+    {
+        $user = $request->user()->tokens()->delete();
         return response()->json([
             "status" => true,
             "message" => "User Logged Out (All) Successfully"
@@ -123,5 +126,49 @@ class UserController extends Controller
     }
 
     // Update user profile
-
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                "status" => false,
+                "message" => "User unauthenticated"
+            ], 404);
+        } else {
+            $validate = Validator::make($request->all(), [
+                "name" => "sometimes|string|max:255",
+                "email" => "sometimes|email|unique:users,email," . $user->id,
+            ]);
+            if (!$validate->fails()) {
+                if ($request->hasFile('avatar')) {
+                    $oldImage = substr($user->avatar, 9);
+                    Storage::disk("public")->delete($oldImage);
+                    $response = FileUploader::store($request->file('avatar'), ["disk" => "public"]);
+                    $avatar = "/storage/" . $response["path"];
+                    $user->avatar = $avatar;
+                }
+                if ($request->has('name')) {
+                    $user->name = $request->name;
+                }
+                if ($request->has('email')) {
+                    $user->email = $request->email;
+                }
+                if ($request->has('password')) {
+                    $user->password = $request->password;
+                }
+                $user->save();
+                return response()->json([
+                    "status" => true,
+                    "message" => "User Profile Updated Successfully",
+                    "user" => $user
+                ], 200);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Validation Error",
+                    "errors" => $validate->errors()
+                ], 422);
+            }
+        }
+    }
 }
