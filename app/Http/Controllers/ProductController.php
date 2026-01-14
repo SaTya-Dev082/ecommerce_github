@@ -34,6 +34,7 @@ class ProductController extends Controller
             "discount" => "nullable|numeric|min:0|max:100",
             "category_id" => "required|exists:categories,id",
             "stock" => "nullable|in:in_stock,out_of_stock,incoming",
+            "status" => "nullable|in:favorite,unfavorite",
         ]);
         if ($validate->fails()) {
             return response()->json([
@@ -56,6 +57,7 @@ class ProductController extends Controller
                 "discount" => $request->discount,
                 "category_id" => $request->category_id,
                 "stock" => $request->stock,
+                "status" => $request->status,
                 "image_url" => $imageUrl
             ]);
             return response()->json([
@@ -64,6 +66,66 @@ class ProductController extends Controller
                 "product" => $product
             ], 201);
         }
+    }
+    // Select only favorite products
+    public function favoriteProducts()
+    {
+        $favorites = Product::where('status', 'favorite')->orderBy("id", "DESC")->get();
+        return response()->json([
+            "status" => true,
+            "message" => "Favorite Products Retrieved",
+            "products" => $favorites
+        ], 200);
+    }
+    // Check Stock product
+    public function checkStock()
+    {
+        $stock = Product::where("stock", "in_stock")->get();
+        if (!$stock) {
+            return response()->json([
+                "status" => false,
+                "message" => "Product Not Found"
+            ], 404);
+        }
+        return response()->json([
+            "status" => true,
+            "message" => "In Stock Products Retrieved",
+            "products" => $stock
+        ], 200);
+    }
+    // Search data of products
+    public function search($text)
+    {
+        $data = Product::where('name', 'LIKE', "%{$text}%")
+            ->orWhere('description', 'LIKE', "%{$text}%")
+            ->orWhere('price', 'LIKE', "%{$text}%")
+            ->get();
+
+        return response()->json([
+            "status" => true,
+            "message" => "Search Results Retrieved",
+            "products" => $data
+        ], 200);
+    }
+    // Sort product by price
+    public function sortByPriceASC()
+    {
+        $products = Product::orderBy('price', 'ASC')->get();
+        return response()->json([
+            "status" => true,
+            "message" => "Products Sorted by Price",
+            "products" => $products
+        ], 200);
+    }
+    // Sort product by price
+    public function sortByPriceDESC()
+    {
+        $products = Product::orderBy('price', 'DESC')->get();
+        return response()->json([
+            "status" => true,
+            "message" => "Products Sorted by Price",
+            "products" => $products
+        ], 200);
     }
     // Update product
     public function update(Request $request, $id)
@@ -83,6 +145,7 @@ class ProductController extends Controller
             "discount" => "nullable|numeric|min:0|max:100",
             "category_id" => "sometimes|required|exists:categories,id",
             "stock" => "nullable|in:in_stock,out_of_stock,incoming",
+            "status" => "nullable|in:favorite,unfavorite",
         ]);
         if ($validate->fails()) {
             return response()->json([
@@ -99,6 +162,7 @@ class ProductController extends Controller
                 "discount",
                 "category_id",
                 "stock",
+                "status",
             ]);
 
             if ($request->hasFile("image_url")) {

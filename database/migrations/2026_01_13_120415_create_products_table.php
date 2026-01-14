@@ -17,9 +17,10 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
             $table->integer('quantity');
-            $table->decimal('discount',5,2)->nullable();
+            $table->decimal('discount', 5, 2)->nullable();
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
-            $table->enum('stock', ['in_stock', 'out_of_stock','incoming'])->default('in_stock');
+            $table->enum('status', ['favorite', 'unfavorite'])->default('unfavorite');
+            $table->enum('stock', ['in_stock', 'out_of_stock', 'incoming'])->default('in_stock');
             $table->string('image_url')->nullable();
             $table->timestamps();
         });

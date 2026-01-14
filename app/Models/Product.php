@@ -10,7 +10,7 @@ class Product extends Model
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
 
-    protected $fillable=[
+    protected $fillable = [
         "name",
         "description",
         "price",
@@ -18,10 +18,15 @@ class Product extends Model
         "discount",
         "category_id",
         "stock",
+        "status",
         "image_url",
     ];
     public function category()
     {
-        return $this->belongsTo(Category::class,"category_id");
+        return $this->belongsTo(Category::class, "category_id");
+    }
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class, 'product_id');
     }
 }
