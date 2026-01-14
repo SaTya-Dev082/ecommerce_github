@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -16,6 +17,8 @@ Route::post('/login', [UserController::class, 'login']);
 
 // Category Routes
 Route::get('/category', [CategoryController::class, 'index']);
+Route::get('/category/{id}/products', [CategoryController::class, 'getProductsByCategoryId']);
+Route::get('/products', [ProductController::class, 'index']);
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -30,5 +33,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [CategoryController::class, 'store']);
         Route::post('/update/{id}', [CategoryController::class, 'update']);
         Route::delete('/delete/{id}', [CategoryController::class, 'destroy']);
+    });
+
+    Route::prefix('/product')->group(function () {
+
+        Route::post('/create', [ProductController::class, 'store']);
+        Route::post('/update/{id}', [ProductController::class, 'update']);
+        Route::delete('/delete/{id}', [ProductController::class, 'destroy']);
     });
 });

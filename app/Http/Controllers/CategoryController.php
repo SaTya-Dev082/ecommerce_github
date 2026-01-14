@@ -17,6 +17,24 @@ class CategoryController extends Controller
             "categories" => $categories
         ], 200);
     }
+
+    // Get Product by CategoryId
+    public function getProductsByCategoryId($id)
+    {
+        $category = Category::find($id);
+        if (!$category) {
+            return response()->json([
+                "status" => false,
+                "message" => "Category Not Found"
+            ], 404);
+        }
+        $products = $category->products()->orderBy("id", "DESC")->get();
+        return response()->json([
+            "status" => true,
+            "message" => "Products Retrieved by Category",
+            "products" => $products
+        ], 200);
+    }
     // Create new category
     public function store(Request $request)
     {
