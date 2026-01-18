@@ -42,10 +42,17 @@ class CategoryController extends Controller
             "name" => "required|string|unique:categories,name",
             "description" => "nullable|string",
         ]);
+        if($request->hasFile("image_url")){
+            $imagePath = $request->file("image_url")->store("categories","public");
+            $imageUrl = "/storage/".$imagePath;
+        }else{
+            $imageUrl = null;
+        }
 
         $category = Category::create([
             "name" => $request->name,
             "description" => $request->description,
+            "image_url" => $imageUrl,
         ]);
 
         return response()->json([
