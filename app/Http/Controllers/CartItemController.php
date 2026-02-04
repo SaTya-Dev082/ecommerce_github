@@ -24,13 +24,11 @@ class CartItemController extends Controller
     }
 
     // Add item to cart
-    public function addToCart(Request $request)
+    public function addToCart(Request $request, $product_id)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id'
-        ]);
 
         $userId = auth()->id();
+        $product_id = $request->product_id;
 
         // 1️⃣ Get active cart
         $cart = Cart::where('user_id', $userId)->get()->first();
@@ -44,7 +42,7 @@ class CartItemController extends Controller
 
         // 3️⃣ Check if product already in cart
         $item = CartItem::where('cart_id', $cart->id)
-            ->where('product_id', $request->product_id)
+            ->where('product_id', $product_id)
             ->first();
 
         if ($item) {
@@ -61,5 +59,22 @@ class CartItemController extends Controller
         }
 
         return response()->json($item, 201);
+    }
+
+    // Remove item from cart
+    public function removeFromCart($id)
+    {
+        $cartItem = CartItem::find($id);
+        if (!$cartItem) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Cart item not found'
+            ], 404);
+        }
+        $cartItem->delete();
+        return response()->json([
+            'status' => true,
+            'message' => 'Cart item removed successfully'
+        ], 200);
     }
 }

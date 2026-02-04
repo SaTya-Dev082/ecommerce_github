@@ -16,6 +16,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::orderBy("id", "DESC")->get();
+        // $products = Product::all();
         return response()->json([
             "status" => true,
             "message" => "All Products Retrieved",
