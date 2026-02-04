@@ -71,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // CartItems Route
     Route::prefix('/cart-item')->group(function () {
         Route::get('/', [CartItemController::class, 'index']);
-        Route::post('/', [CartItemController::class, 'addToCart']);
+        Route::post('/{product_id}', [CartItemController::class, 'addToCart']);
+        Route::get('/{product_id}/delete', [CartItemController::class, 'removeFromCart']);
     });
 });
